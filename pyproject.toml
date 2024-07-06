@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "tanks"
+version = "1.0.0"
+description = "A top down tank game with bots and multiplayer"
+authors = ["HunterBowie <73845280+HunterBowie@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pygame = "^2.6.0"
+pygame-util = "^1.0.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
