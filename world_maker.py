@@ -7,30 +7,21 @@ import pygame_util as util
 from asset_manager import AssetManager
 from camera import Camera
 from constants import SCREEN_SIZE, TILE_SIZE, MouseButton
-from terrain import Terrain
+from world import MakerWorld, Tile
 
 pygame.init()
 
 
 assets = AssetManager()
-window = util.Window(SCREEN_SIZE, "Map Maker")
+window = util.Window(SCREEN_SIZE, "Map Maker", max_fps=100)
 
 assets.load_images()
 
 window.set_icon(assets.images.ui["wrench"])
 
 
-terrain = Terrain.load("meadows")
-camera = Camera(0, 0)
-
-
-def load(name: str, assets: AssetManager) -> Terrain:
-
-
-def save(self) -> None:
-    file_path = path.join(TERRAIN_DIR, self.name + ".json")
-    with open(file_path, "w") as file:
-        json.dump(self.get_data(), file, indent=4)
+world: MakerWorld = MakerWorld.load("meadows", assets)
+camera = Camera((0, 0))
 
 
 def get_mouse_row_col() -> tuple[int, int]:
@@ -65,13 +56,13 @@ def main():
 
         if mouse_buttons[MouseButton.Pressed.LEFT]:
             if mouse_row >= 0 and mouse_col >= 0:
-                terrain.add_tile(
-                    {"row": mouse_row, "col": mouse_col, "name": tiles[current_tile_index]})
+                world.add_tile(
+                    Tile.load({"row": mouse_row, "col": mouse_col, "name": tiles[current_tile_index]}, assets))
 
         if mouse_buttons[MouseButton.Pressed.RIGHT]:
-            for tile in terrain.tiles:
-                if tile['row'] == mouse_row and tile['col'] == mouse_col:
-                    terrain.tiles.remove(tile)
+            tile = world.get_tile(mouse_row, mouse_col)
+            if tile:
+                world.remove_tile(tile)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -90,14 +81,14 @@ def main():
                     if current_tile_index < 0:
                         current_tile_index = len(tiles)-1
                 elif event.button == MouseButton.Down.MIDDLE:
-                    tile = terrain.get_tile(mouse_row, mouse_col)
+                    tile = world.get_tile(mouse_row, mouse_col)
                     if tile:
                         current_tile_index = tiles.index(
                             tile["name"])
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_l:
-                    terrain.save()
+                    world.save()
 
                 elif event.key == pygame.K_f:
                     if mouse_row >= 0 or mouse_col >= 0:
@@ -110,11 +101,11 @@ def main():
                     end = mouse_row, mouse_col
                     for row in range(start[0], end[0]):
                         for col in range(start[1], end[1]):
-                            terrain.add_tile(
-                                {"row": row, "col": col, "name": tiles[current_tile_index]})
+                            world.add_tile(
+                                Tile.load({"row": row, "col": col, "name": tiles[current_tile_index]}, assets))
                     filling_area = False
 
-        terrain.render(screen, camera, assets)
+        world.render(screen, camera)
 
         is_mouse_focused = pygame.mouse.get_focused()
         if is_mouse_focused and mouse_row >= 0 and mouse_col >= 0:

@@ -1,13 +1,23 @@
+import pygame
+
 from constants import MAX_ZOOM_FACTOR, MIN_ZOOM_FACTOR, SCREEN_SIZE
 
 
 class Camera:
     """The position and zoom of the user on the terrain."""
 
-    def __init__(self, x: int, y: int) -> None:
-        self.x = x
-        self.y = y
+    def __init__(self, center_pos: tuple[int, int]) -> None:
+        screen_size = pygame.display.get_surface().get_size()
+        self.x = center_pos[0] - screen_size[0]//2
+        self.y = center_pos[1] - screen_size[1]//2
         self.zoom = 1.0
+
+    @property
+    def center(self) -> tuple[int, int]:
+        screen_size = pygame.display.get_surface().get_size()
+        center_x = self.x + screen_size[0]//2
+        center_y = self.y + screen_size[1]//2
+        return center_x, center_y
 
     def world_to_relative(self, world_pos: tuple[int, int]) -> tuple[int, int]:
         """Convert world coordinates to relative coordinates."""
@@ -46,5 +56,7 @@ class Camera:
 
         world_center_after_zoom = self.relative_to_world(screen_center)
 
-        self.x -= (world_center_after_zoom[0] - world_center_before_zoom[0])
-        self.y -= (world_center_after_zoom[1] - world_center_before_zoom[1])
+        self.x -= (world_center_after_zoom[0] -
+                   world_center_before_zoom[0])
+        self.y -= (world_center_after_zoom[1] -
+                   world_center_before_zoom[1])

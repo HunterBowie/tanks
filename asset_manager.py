@@ -9,6 +9,7 @@ IMAGES_DIR = os.path.join(CURRENT_DIR, "assets/images")
 TILES_DIR = os.path.join(IMAGES_DIR, "tiles")
 OBJECTS_DIR = os.path.join(IMAGES_DIR, "objects")
 UI_DIR = os.path.join(IMAGES_DIR, "ui")
+TANKS_DIR = os.path.join(IMAGES_DIR, "tanks")
 
 SOUNDS_DIR = os.path.join(CURRENT_DIR, "assets/sounds")
 EFFECTS_DIR = os.path.join(SOUNDS_DIR, "effects")
@@ -19,6 +20,7 @@ FONTS_DIR = os.path.join(CURRENT_DIR, "assets/fonts")
 
 class ImageManager:
     def __init__(self) -> None:
+        self.tanks = {}
         self.tiles = {}
         self.objects = {}
         self.ui = {}
@@ -42,6 +44,8 @@ class ImageManager:
         self._load(TILES_DIR, self.tiles)
         self._load(OBJECTS_DIR, self.objects)
         self._load(UI_DIR, self.ui)
+        self._load(TANKS_DIR, self.tanks)
+
         self._other['icon'] = pygame.transform.rotate(
             util.load_image('icon', IMAGES_DIR, convert=True), 270)
 

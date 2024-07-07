@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from msilib.schema import File
 
 import pygame
 
@@ -23,8 +24,17 @@ class Tile:
         return pygame.Rect(rel_x, rel_y, rel_tile_size, rel_tile_size)
 
     @staticmethod
-    def load(data: dict, assets: AssetManager) -> File:
+    def load(data: dict, assets: AssetManager) -> Tile:
         return Tile(data["row"], data["col"], data["name"], assets.images.tiles[data["name"]])
 
     def unload(self) -> dict:
         return {"row": self.row, "col": self.col, "name": self.name}
+
+    def update(self) -> None:
+        pass
+
+    def render(self, screen: pygame.Surface, camera: Camera) -> None:
+        pos = camera.world_to_relative(
+            (self.col * TILE_SIZE, self.row * TILE_SIZE))
+        screen.blit(pygame.transform.scale(
+            self.image, (round(TILE_SIZE * camera.zoom), round(TILE_SIZE * camera.zoom))), pos)

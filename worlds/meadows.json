@@ -1,7 +1,7 @@
 {
     "spawn": [
         1300,
-        1600
+        2000
     ],
     "tiles": [
         {
@@ -5715,5 +5715,7 @@
             "name": "void"
         }
     ],
-    "objects": []
+    "physical_objects": [],
+    "visual_objects": [],
+    "items": []
 }
