@@ -4,9 +4,10 @@ import pygame_util as util
 
 from asset_manager import AssetManager
 from camera import Camera
-from constants import SCREEN_SIZE
+from constants import SCREEN_SIZE, TILE_SIZE
 from tank import Tank
 from terrain import Terrain
+from world import World
 
 pygame.init()
 
@@ -17,10 +18,16 @@ assets.load_images()
 
 window.set_icon(assets.images['icon'])
 
-terrain = Terrain.load("meadows")
-camera = Camera(1300, 1600)
+world = World("meadows", assets)
+camera = Camera(world.spawn)
 
-tank = Tank(1300, 1600, assets.images.objects["tankBody_blue_outline"])
+
+def move_camera(x_change: int, y_change: int) -> None:
+    camera.move(x_change, y_change)
+    for tile in world.terrain.void_tiles:
+        if tile.get_rel_rect(camera).colliderect(pygame.Rect(0, 0, window.screen.get_width(), window.screen.get_height())):
+            camera.move(-x_change, -y_change)
+
 
 running = True
 while running:
@@ -31,15 +38,13 @@ while running:
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        camera.move(-10, 0)
+        move_camera(-10, 0)
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        camera.move(10, 0)
+        move_camera(10, 0)
     if keys[pygame.K_UP] or keys[pygame.K_w]:
-        camera.move(0, -10)
+        move_camera(0, -10)
     if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-        camera.move(0, 10)
+        move_camera(0, 10)
 
-    terrain.render(window.screen, camera, assets)
-    tank.render(window.screen, camera)
-
+    world.render(window.screen, camera)
     window.update()

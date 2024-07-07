@@ -1,10 +1,13 @@
+from os import path
+
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 TILE_SIZE = 64
-TERRAIN_DIRECTORY = "terrain"
+CURRENT_DIR = path.dirname(__file__)
+WORLDS_DIR = path.join(CURRENT_DIR, "worlds")
 
 MAX_ZOOM_FACTOR = 3
 MIN_ZOOM_FACTOR = .2

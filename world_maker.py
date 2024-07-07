@@ -24,6 +24,15 @@ terrain = Terrain.load("meadows")
 camera = Camera(0, 0)
 
 
+def load(name: str, assets: AssetManager) -> Terrain:
+
+
+def save(self) -> None:
+    file_path = path.join(TERRAIN_DIR, self.name + ".json")
+    with open(file_path, "w") as file:
+        json.dump(self.get_data(), file, indent=4)
+
+
 def get_mouse_row_col() -> tuple[int, int]:
     world_x, world_y = camera.relative_to_world(pygame.mouse.get_pos())
     col = world_x//TILE_SIZE
@@ -81,8 +90,10 @@ def main():
                     if current_tile_index < 0:
                         current_tile_index = len(tiles)-1
                 elif event.button == MouseButton.Down.MIDDLE:
-                    current_tile_index = tiles.index(
-                        terrain.get_tile(mouse_row, mouse_col)["name"])
+                    tile = terrain.get_tile(mouse_row, mouse_col)
+                    if tile:
+                        current_tile_index = tiles.index(
+                            tile["name"])
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_l:
