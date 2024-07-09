@@ -54,16 +54,18 @@ while running:
     camera_x, camera_y = camera.center
     camera_dx = (tank.rect.center[0] - camera_x)
     camera_dy = (tank.rect.center[1] - camera_y)
-    camera_dx *= 0.01
+
     camera_dy *= 0.02
-    camera.move(camera_dx, 0)
-    for tile in world.void_tiles:
-        if tile.get_rel_rect(camera).colliderect(pygame.Rect(0, 0, window.screen.get_width(), window.screen.get_height())):
-            camera.move(-camera_dx, 0)
     camera.move(0, camera_dy)
     for tile in world.void_tiles:
         if tile.get_rel_rect(camera).colliderect(pygame.Rect(0, 0, window.screen.get_width(), window.screen.get_height())):
             camera.move(0, -camera_dy)
+
+    camera_dx *= 0.02
+    camera.move(camera_dx, 0)
+    for tile in world.void_tiles:
+        if tile.get_rel_rect(camera).colliderect(pygame.Rect(0, 0, window.screen.get_width(), window.screen.get_height())):
+            camera.move(-camera_dx, 0)
 
     world.render(window.screen, camera)
     window.update()
