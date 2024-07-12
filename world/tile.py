@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import pygame
 
-from asset_manager import AssetManager
+from assets import assets
 from camera import Camera
 from constants import TILE_SIZE
 
@@ -15,17 +15,23 @@ class Tile:
     col: int
     name: str
     image: pygame.Surface
+    camera: Camera
 
-    def get_rel_rect(self, camera: Camera) -> pygame.Rect:
-        rel_tile_size = TILE_SIZE * camera.zoom
+    def get_rel_rect(self) -> pygame.Rect:
+        rel_tile_size = TILE_SIZE * self.camera.zoom
         row, col = self.row, self.col
         world_pos = col * rel_tile_size, row * rel_tile_size
-        rel_x, rel_y = camera.world_to_relative(world_pos)
+        rel_x, rel_y = self.camera.world_to_relative(world_pos)
         return pygame.Rect(rel_x, rel_y, rel_tile_size, rel_tile_size)
 
+    def get_world_rect(self) -> pygame.Rect:
+        world_x = self.col * TILE_SIZE
+        world_y = self.row * TILE_SIZE
+        return pygame.Rect(world_x, world_y, TILE_SIZE, TILE_SIZE)
+
     @staticmethod
-    def load(data: dict, assets: AssetManager) -> Tile:
-        return Tile(data["row"], data["col"], data["name"], assets.images.tiles[data["name"]])
+    def load(data: dict, camera: Camera) -> Tile:
+        return Tile(data["row"], data["col"], data["name"], assets.images.tiles[data["name"]], camera)
 
     def unload(self) -> dict:
         return {"row": self.row, "col": self.col, "name": self.name}
@@ -33,8 +39,9 @@ class Tile:
     def update(self) -> None:
         pass
 
-    def render(self, screen: pygame.Surface, camera: Camera) -> None:
-        pos = camera.world_to_relative(
-            (self.col * TILE_SIZE, self.row * TILE_SIZE))
-        screen.blit(pygame.transform.scale(
-            self.image, (round(TILE_SIZE * camera.zoom), round(TILE_SIZE * camera.zoom))), pos)
+    def render(self, screen: pygame.Surface) -> None:
+        rect = self.get_world_rect()
+        if rect.colliderect(self.camera.rect):
+            rect = self.get_rel_rect()
+            screen.blit(pygame.transform.scale(
+                self.image, (round(TILE_SIZE * self.camera.zoom), round(TILE_SIZE * self.camera.zoom))), rect.topleft)

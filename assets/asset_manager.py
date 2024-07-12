@@ -5,26 +5,40 @@ import pygame_util as util
 
 CURRENT_DIR = os.path.dirname(__file__)
 
-IMAGES_DIR = os.path.join(CURRENT_DIR, "assets/images")
+IMAGES_DIR = os.path.join(CURRENT_DIR, "images")
 TILES_DIR = os.path.join(IMAGES_DIR, "tiles")
 OBJECTS_DIR = os.path.join(IMAGES_DIR, "objects")
 UI_DIR = os.path.join(IMAGES_DIR, "ui")
 TANKS_DIR = os.path.join(IMAGES_DIR, "tanks")
+BULLETS_DIR = os.path.join(IMAGES_DIR, "bullets")
+EXPLOSIONS_DIR = os.path.join(IMAGES_DIR, "explosions")
 
-SOUNDS_DIR = os.path.join(CURRENT_DIR, "assets/sounds")
+SOUNDS_DIR = os.path.join(CURRENT_DIR, "sounds")
 EFFECTS_DIR = os.path.join(SOUNDS_DIR, "effects")
 MUSIC_DIR = os.path.join(SOUNDS_DIR, "music")
 
-FONTS_DIR = os.path.join(CURRENT_DIR, "assets/fonts")
+FONTS_DIR = os.path.join(CURRENT_DIR, "fonts")
 
 
 class ImageManager:
     def __init__(self) -> None:
-        self.tanks = {}
-        self.tiles = {}
-        self.objects = {}
-        self.ui = {}
-        self._other = {}
+        self.tanks: dict[str, pygame.Surface] = {}
+        self.bullets: dict[str, pygame.Surface] = {}
+        self.explosions: dict[str, pygame.Surface] = {}
+        self.tiles: dict[str, pygame.Surface] = {}
+        self.objects: dict[str, pygame.Surface] = {}
+        self.ui: dict[str, pygame.Surface] = {}
+        self._other: dict[str, pygame.Surface] = {}
+
+        self._load(TANKS_DIR, self.tanks)
+        self._load(BULLETS_DIR, self.bullets)
+        self._load(EXPLOSIONS_DIR, self.explosions)
+        self._load(TILES_DIR, self.tiles)
+        self._load(OBJECTS_DIR, self.objects)
+        self._load(UI_DIR, self.ui)
+
+        self._other['icon'] = pygame.transform.rotate(
+            util.load_image('icon', IMAGES_DIR, convert=True), 270)
 
     def __getitem__(self, index: str) -> pygame.Surface:
         return self._other[index]
@@ -39,15 +53,6 @@ class ImageManager:
 
         for name in file_names:
             dictionary[name] = util.load_image(name, directory, convert=True)
-
-    def load(self) -> None:
-        self._load(TILES_DIR, self.tiles)
-        self._load(OBJECTS_DIR, self.objects)
-        self._load(UI_DIR, self.ui)
-        self._load(TANKS_DIR, self.tanks)
-
-        self._other['icon'] = pygame.transform.rotate(
-            util.load_image('icon', IMAGES_DIR, convert=True), 270)
 
 
 class SoundManager:
@@ -73,6 +78,5 @@ class AssetManager:
         self.fonts = {"kenney_wide": os.path.join(
             FONTS_DIR, "kenney_wide.ttf")}
 
-    def load_images(self) -> None:
-        """You may only call this method once the pygame display has been initalized."""
-        self.images.load()
+
+assets = AssetManager()

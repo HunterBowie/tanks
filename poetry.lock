@@ -68,13 +68,13 @@ files = [
 
 [[package]]
 name = "pygame-util"
-version = "1.0.4"
+version = "1.0.5"
 description = "A package that simplifies repetitive pygame code."
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "pygame_util-1.0.4-py3-none-any.whl", hash = "sha256:9fd8e168c486b961b4761cba2ce0a38f05b384593d579a102eafde20dec40e1f"},
-    {file = "pygame_util-1.0.4.tar.gz", hash = "sha256:3a9de2bd18b0d67a0fcbbfa9c60ce237c2c2df91af4d07759efd0af7fe906464"},
+    {file = "pygame_util-1.0.5-py3-none-any.whl", hash = "sha256:060bbbaa398b59a4c0d77dba1bb3fb767f09b3a00d89a6797c2c729e23fa0c86"},
+    {file = "pygame_util-1.0.5.tar.gz", hash = "sha256:4e93bd2d4d7839eda58e8a008f1144db71b0c288d4418f31278f53b5619941e6"},
 ]
 
 [package.dependencies]

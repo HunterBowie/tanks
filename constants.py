@@ -1,3 +1,4 @@
+from enum import Enum, StrEnum, auto
 from os import path
 
 SCREEN_WIDTH = 1000
@@ -9,8 +10,11 @@ TILE_SIZE = 64
 CURRENT_DIR = path.dirname(__file__)
 WORLDS_DIR = path.join(CURRENT_DIR, "worlds")
 
-MAX_ZOOM_FACTOR = 3
-MIN_ZOOM_FACTOR = .2
+
+class TankTrackSize(StrEnum):
+    SMALL = "tracksSmall"
+    LARGE = "tracksLarge"
+    DOUBLE = "tracksDouble"
 
 
 class MouseButton:

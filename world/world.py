@@ -8,24 +8,17 @@ from typing import Protocol
 
 import pygame
 
-from asset_manager import AssetManager
+from assets import assets
 from camera import Camera
-from constants import WORLDS_DIR
+from constants import TILE_SIZE, WORLDS_DIR
+from world.effects import Effect, Explosion, TrackEffect
 from world.tanks import Tank
+from world.world_entity import WorldEntity
 
-from .effect import Effect
 from .item import Item
 from .object import Object
-from .tanks.missile import Missile
+from .tanks.bullet import Bullet
 from .tile import Tile
-
-
-class WorldEntity(Protocol):
-    def update(self) -> None:
-        ...
-
-    def render(self, screen: pygame.Surface, camera: Camera) -> None:
-        ...
 
 
 @dataclass
@@ -39,50 +32,92 @@ class World:
     items: list[Item]
 
     tanks: list[Tank]
-    missiles: list[Missile]
+    bullets: list[Bullet]
     effects: list[Effect]
 
-    def __post_init__(self) -> None:
-        self.entities: list[WorldEntity] = self.tiles + self.physical_objects + \
-            self.visual_objects + self.tanks + self.missiles + self.items + self.effects
-        self.void_tiles = [tile for tile in self.tiles if tile.name == "void"]
+    camera: Camera
 
-    def add_tank(self, tank: Tank) -> None:
+    def __post_init__(self) -> None:
+        max_row = max_col = 0
+        for tile in self.tiles:
+            max_row = max(max_row, tile.row)
+            max_col = max(max_col, tile.col)
+        self.rect = pygame.Rect(0, 0, max_col*TILE_SIZE, max_row*TILE_SIZE)
+
+    @property
+    def entities(self) -> list[WorldEntity]:
+        return self.tiles + self.physical_objects + self.visual_objects + self.items + self.tanks + self.bullets + self.effects
+
+    def get_barrier_rects(self) -> list[pygame.Rect]:
+        return [tile.get_world_rect() for tile in self.tiles if tile.name == "barrier"]
+
+    def spawn_tank(self, tank: Tank) -> None:
         self.tanks.append(tank)
-        self.entities.append(tank)
+
+    def tank_fire(self, tank: Tank) -> None:
+        self.bullets.extend(tank.fire())
+
+    def move_tank(self, tank: Tank, angle: int) -> None:
+        tank.move(angle)
+        if tank.track_timer.passed(2):
+            self.spawn_effect(TrackEffect(tank, self.camera))
+            tank.track_timer.start()
+
+    def spawn_effect(self, effect: Effect) -> None:
+        self.effects.append(effect)
+
+    def create_explosion(self, pos: tuple[int, int]) -> None:
+        self.effects.append(Explosion(pos, self.camera))
 
     def update(self) -> None:
         for entity in self.entities:
             entity.update()
 
-    def render(self, screen: pygame.Surface, camera: Camera) -> None:
+        for effect in self.effects:
+            if effect.is_dead():
+                self.effects.remove(effect)
+
+        for bullet in self.bullets:
+            if not bullet.rect.colliderect(self.rect):
+                self.bullets.remove(bullet)
+            elif bullet.explosion_timer.passed(1):
+                self.bullets.remove(bullet)
+                self.create_explosion(bullet.rect.center)
+            elif bullet.explosion_timer.passed(.2):
+                for tank in self.tanks:
+                    if tank.rect.colliderect(bullet.rect):
+                        self.bullets.remove(bullet)
+                        self.create_explosion(bullet.rect.center)
+
+    def render(self, screen: pygame.Surface) -> None:
         first_layer = self.tiles
-        second_layer = self.physical_objects + self.visual_objects + self.items
-        third_layer = self.tanks + self.missiles
-        fourth_layer = self.effects
+        second_layer = self.physical_objects + \
+            self.visual_objects + self.items + self.effects
+        third_layer = self.tanks + self.bullets
+        fourth_layer = []
         for entity in first_layer:
-            entity.render(screen, camera)
+            entity.render(screen)
         for entity in second_layer:
-            entity.render(screen, camera)
+            entity.render(screen)
         for entity in third_layer:
-            entity.render(screen, camera)
+            entity.render(screen)
         for entity in fourth_layer:
-            entity.render(screen, camera)
+            entity.render(screen)
 
     @staticmethod
-    def load(world_name: str, assets: AssetManager) -> World:
+    def load(world_name: str, camera: Camera) -> World:
         file_path = path.join(WORLDS_DIR, world_name + ".json")
         with open(file_path, "r") as file:
             data = json.load(file)
             spawn = tuple(data["spawn"])
-            tiles = [Tile.load(tile, assets) for tile in data["tiles"]]
-            physical_objects = [Object.load(object, assets)
+            tiles = [Tile.load(tile, camera) for tile in data["tiles"]]
+            physical_objects = [Object.load(object, camera)
                                 for object in data["physical_objects"]]
-            visual_objects = [Object.load(object, assets)
+            visual_objects = [Object.load(object, camera)
                               for object in data["visual_objects"]]
-            items = [Item.load(item, assets) for item in data["items"]]
+            items = [Item.load(item, camera) for item in data["items"]]
 
-            return World(world_name, spawn, tiles, physical_objects, visual_objects, items, [], [], [])
+            return World(world_name, spawn, tiles, physical_objects, visual_objects, items, [], [], [], camera)
 
 
 @dataclass

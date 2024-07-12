@@ -1,15 +1,6 @@
-import pygame
-import pygame_util as util
 
-from constants import SCREEN_SIZE
+tank = (100, 100), Tank.ARMOURED_DOUBLE
 
-window = util.Window(SCREEN_SIZE)
-run = True
-while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            print(event.button)
+world.spawn_tank(tank)
 
-    window.update()
+world.tank_fire(tank)

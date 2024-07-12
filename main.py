@@ -1,34 +1,39 @@
+# autopep8: off
 
 import math
 
 import pygame
 import pygame_util as util
 
-from asset_manager import AssetManager
 from camera import Camera
 from constants import SCREEN_SIZE, TILE_SIZE
-from world import Tank, World
 
 pygame.init()
 
-assets = AssetManager()
 window = util.Window(SCREEN_SIZE, 'Tanks')
 
-assets.load_images()
+from assets import assets
+from world import Tank, World
+from world.tanks.rotation import get_angle
+from world.tanks.turret import Turret
+
+# autopep8: on
 
 window.set_icon(assets.images['icon'])
 
-world = World.load("meadows", assets)
-tank = Tank(world.spawn, assets.images.tanks["tank_blue"])
-camera = Camera(world.spawn)
-world.add_tank(tank)
+camera = Camera()
+world = World.load("meadows", camera)
 
+camera.set_pos(world.spawn)
+camera.set_barrier_rects(world.get_barrier_rects())
 
-def move_tank(x_change: int, y_change: int) -> None:
-    radians = math.atan2(-y_change, x_change)
-    angle = math.degrees(radians)
-    tank.move(angle)
+tank = Tank(world.spawn, camera)
+world.spawn_tank(tank)
 
+enemy_tank = Tank(world.spawn, camera)
+world.spawn_tank(enemy_tank)
+
+turret = Turret(world.spawn, camera)
 
 running = True
 while running:
@@ -37,35 +42,27 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            (pygame.mouse.get_pos())
+            world.tank_fire(tank)
 
     keys = pygame.key.get_pressed()
     x_change, y_change = 0, 0
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        x_change = -10
+        x_change = -1
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        x_change = 10
+        x_change = 1
     if keys[pygame.K_UP] or keys[pygame.K_w]:
-        y_change = -10
+        y_change = -1
     if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-        y_change = 10
+        y_change = 1
     if x_change != 0 or y_change != 0:
-        move_tank(x_change, y_change)
-    camera_x, camera_y = camera.center
-    camera_dx = (tank.rect.center[0] - camera_x)
-    camera_dy = (tank.rect.center[1] - camera_y)
-
-    camera_dy *= 0.02
-    camera.move(0, camera_dy)
-    for tile in world.void_tiles:
-        if tile.get_rel_rect(camera).colliderect(pygame.Rect(0, 0, window.screen.get_width(), window.screen.get_height())):
-            camera.move(0, -camera_dy)
-
-    camera_dx *= 0.02
-    camera.move(camera_dx, 0)
-    for tile in world.void_tiles:
-        if tile.get_rel_rect(camera).colliderect(pygame.Rect(0, 0, window.screen.get_width(), window.screen.get_height())):
-            camera.move(-camera_dx, 0)
-
-    world.render(window.screen, camera)
+        angle = math.degrees(math.atan2(-y_change, x_change))
+        world.move_tank(tank, angle)
+    camera.move_with_delay_within_barriers(tank.rect.center)
+    if pygame.mouse.get_focused():
+        tank.turret.rotate(get_angle(camera.world_to_relative(
+            tank.rect.center), pygame.mouse.get_pos()))
+    world.update()
+    world.render(window.screen)
+    pygame.draw.circle(window.screen, util.Color.RED,
+                       camera.world_to_relative(world.spawn), 5)
     window.update()

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import pygame
 
-from asset_manager import AssetManager
+from assets import assets
 from camera import Camera
 
 
@@ -14,10 +14,11 @@ class Object:
     y: int
     name: str
     image: pygame.Surface
+    camera: Camera
 
     @staticmethod
-    def load(data: dict, assets: AssetManager) -> Object:
-        return Object(data["x"], data["y"], data["name"], assets.images.tiles[data["name"]])
+    def load(data: dict, camera: Camera) -> Object:
+        return Object(data["x"], data["y"], data["name"], assets.images.tiles[data["name"]], Camera)
 
     def unload(self) -> dict:
         return {"x": self.x, "y": self.y, "name": self.name}
@@ -25,7 +26,7 @@ class Object:
     def update(self) -> None:
         pass
 
-    def render(self, screen: pygame.Surface, camera: Camera) -> None:
-        pos = camera.world_to_relative((self.x, self.y))
+    def render(self, screen: pygame.Surface) -> None:
+        pos = self.camera.world_to_relative((self.x, self.y))
         screen.blit(pygame.transform.scale(self.image, (int(self.image.get_width(
-        ) * camera.zoom), int(self.image.get_height() * camera.zoom))), pos)
+        ) * self.camera.zoom), int(self.image.get_height() * self.camera.zoom))), pos)

@@ -1,16 +1,14 @@
 
+from typing import Protocol
+
 import pygame
 
 from camera import Camera
 
 
-class Item:
-
-    def unload(self) -> dict:
-        pass
-
+class WorldEntity(Protocol):
     def update(self) -> None:
-        pass
+        ...
 
     def render(self, screen: pygame.Surface) -> None:
-        pass
+        ...
