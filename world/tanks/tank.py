@@ -1,4 +1,6 @@
 
+from __future__ import annotations
+
 import math
 
 import pygame
@@ -14,6 +16,8 @@ from .rotation import get_angle, move_rect_with_degrees
 
 
 class Tank:
+    ID = 0
+
     def __init__(self, pos: tuple[int, int], camera: Camera) -> None:
         self.camera = camera
         self.image = assets.images.tanks["blue_tank_body"]
@@ -24,12 +28,31 @@ class Tank:
         self.track_size = TankTrackSize.SMALL
         self.track_timer = util.Timer()
         self.track_timer.start()
+        self.id = self.generate_id()
 
-        self.turret = Turret(self.rect.center, camera)
+        self.turret = Turret(self.rect.center, self.id, camera)
 
-    def move(self, angle: int) -> None:
+    @property
+    def mask(self) -> pygame.Mask:
+        return pygame.mask.from_surface(self.rotated_image)
+
+    @classmethod
+    def generate_id(cls) -> int:
+        cls.ID += 1
+        return cls.ID
+
+    def move(self, angle: int, other_tanks: list[Tank]) -> None:
+        original_angle = self.angle
         self.rotate(angle)
+        for tank in other_tanks:
+            if tank.mask.overlap(self.mask, (self.rect.x - tank.rect.x, self.rect.y - tank.rect.y)):
+                self.rotate(original_angle)
+                break
         move_rect_with_degrees(self.rect, angle, self.speed)
+        for tank in other_tanks:
+            if tank.mask.overlap(self.mask, (self.rect.x - tank.rect.x, self.rect.y - tank.rect.y)):
+                move_rect_with_degrees(self.rect, angle-180, self.speed)
+                break
 
     def rotate(self, angle: int) -> None:
         self.rotated_image = pygame.transform.rotate(self.image, angle + 90)
@@ -49,6 +72,8 @@ class Tank:
         self.turret.update()
 
     def render(self, screen: pygame.Surface) -> None:
-        rel_pos = self.camera.world_to_relative((self.rect.x, self.rect.y))
-        screen.blit(self.rotated_image, rel_pos)
+        rect = self.rect.copy()
+        rect.topleft = self.camera.world_to_relative(rect.topleft)
+        # screen.blit(self.mask.to_surface(), rect.topleft)
+        screen.blit(self.rotated_image, rect)
         self.turret.render(screen)

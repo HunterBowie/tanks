@@ -25,16 +25,12 @@ class Explosion:
         return self.dead
 
     def update(self):
-        if self.frame_timer.passed(self.FRAME_DELAY):
+        if self.frame_timer.passed(self.FRAME_DELAY) and not self.dead:
             self.frame += 1
-            if self.frame >= len(self.frames):
-                self.dead = True
-                self.frame_timer.start()
-                self.frame_timer.reset()
-            else:
-                self.rect = self.frames[self.frame].get_rect(
-                    center=self.rect.center)
             self.frame_timer.start()
+            if self.frame == len(self.frames):
+                self.dead = True
+                self.frame -= 1
 
     def render(self, screen: pygame.Surface) -> None:
         rect = self.rect.copy()

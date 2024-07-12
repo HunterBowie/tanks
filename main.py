@@ -30,10 +30,13 @@ camera.set_barrier_rects(world.get_barrier_rects())
 tank = Tank(world.spawn, camera)
 world.spawn_tank(tank)
 
-enemy_tank = Tank(world.spawn, camera)
+x, y = world.spawn
+x -= 200
+enemy_tank = Tank((x, y), camera)
 world.spawn_tank(enemy_tank)
 
-turret = Turret(world.spawn, camera)
+firing_timer = util.Timer()
+firing_timer.start()
 
 running = True
 while running:
@@ -41,8 +44,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            world.tank_fire(tank)
+    pressed = pygame.mouse.get_pressed()
+    if pressed[0] and firing_timer.passed(.2):
+        world.tank_fire(tank)
+        firing_timer.start()
 
     keys = pygame.key.get_pressed()
     x_change, y_change = 0, 0

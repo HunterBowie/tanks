@@ -58,7 +58,9 @@ class World:
         self.bullets.extend(tank.fire())
 
     def move_tank(self, tank: Tank, angle: int) -> None:
-        tank.move(angle)
+        tank.move(
+            angle, [other_tank for other_tank in self.tanks if tank != other_tank])
+
         if tank.track_timer.passed(2):
             self.spawn_effect(TrackEffect(tank, self.camera))
             tank.track_timer.start()
@@ -80,14 +82,12 @@ class World:
         for bullet in self.bullets:
             if not bullet.rect.colliderect(self.rect):
                 self.bullets.remove(bullet)
-            elif bullet.explosion_timer.passed(1):
-                self.bullets.remove(bullet)
-                self.create_explosion(bullet.rect.center)
-            elif bullet.explosion_timer.passed(.2):
+            else:
                 for tank in self.tanks:
-                    if tank.rect.colliderect(bullet.rect):
-                        self.bullets.remove(bullet)
-                        self.create_explosion(bullet.rect.center)
+                    if tank.id != bullet.tank_id:
+                        if tank.rect.colliderect(bullet.rect):
+                            self.bullets.remove(bullet)
+                            self.create_explosion(bullet.rect.center)
 
     def render(self, screen: pygame.Surface) -> None:
         first_layer = self.tiles

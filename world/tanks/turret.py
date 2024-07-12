@@ -13,7 +13,8 @@ from .rotation import move_pos_with_degrees
 
 
 class Turret:
-    def __init__(self, pivot_pos: tuple[int, int], camera: Camera) -> None:
+    def __init__(self, pivot_pos: tuple[int, int], tank_id: int, camera: Camera) -> None:
+        self.tank_id = tank_id
         self.camera = camera
         self.image = assets.images.tanks["blue_tank_barrel_1"]
         self.pivot_pos = pivot_pos
@@ -32,7 +33,7 @@ class Turret:
             self.image, self.angle + 90)
 
     def fire(self) -> Bullet:
-        return Bullet(self.launch_pos, self.angle, self.camera)
+        return Bullet(self.launch_pos, self.angle, self.tank_id, self.camera)
 
     def render(self, screen: pygame.Surface) -> None:
         rect = self.rect.copy()
