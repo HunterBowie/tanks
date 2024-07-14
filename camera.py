@@ -86,3 +86,7 @@ class Camera:
                         world_center_before_zoom[0])
         self.rect.y -= (world_center_after_zoom[1] -
                         world_center_before_zoom[1])
+
+        width, height = pygame.display.get_surface().get_size()
+        self.rect.width = width / self.zoom
+        self.rect.height = height / self.zoom

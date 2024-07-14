@@ -9,6 +9,7 @@ from world.tanks.tank import Tank
 
 class TrackEffect:
     ALIVE_TIME_SECONDS = 20
+    RENDERING_LAYER = 1
 
     def __init__(self, tank: Tank, camera: Camera) -> None:
         self.camera = camera
@@ -20,7 +21,7 @@ class TrackEffect:
         self.alive_timer = util.Timer()
         self.alive_timer.start()
 
-    def is_dead(self) -> bool:
+    def is_finished(self) -> bool:
         return self.alive_timer.passed(self.ALIVE_TIME_SECONDS)
 
     def update(self):

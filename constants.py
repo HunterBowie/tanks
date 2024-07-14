@@ -10,11 +10,23 @@ TILE_SIZE = 64
 CURRENT_DIR = path.dirname(__file__)
 WORLDS_DIR = path.join(CURRENT_DIR, "worlds")
 
+NUM_RENDERING_LAYERS = 5
+
+DEBUG_MODE = False
+
 
 class TankTrackSize(StrEnum):
     SMALL = "tracksSmall"
     LARGE = "tracksLarge"
     DOUBLE = "tracksDouble"
+
+
+class TankColor(Enum):
+    RED = auto()
+    BLUE = auto()
+    GREEN = auto()
+    BEIGE = auto()
+    BLACK = auto()
 
 
 class MouseButton:
@@ -28,3 +40,12 @@ class MouseButton:
         SCROLL_DOWN = 5
         SIDE_BACK = 6
         SIDE_FRONT = 7
+
+
+class EntityType(Enum):
+    EFFECT = auto()
+    TILE = auto()
+    ITEM = auto()
+    OBJECT = auto()
+    TANK = auto()
+    BULLET = auto()

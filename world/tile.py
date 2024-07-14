@@ -11,6 +11,8 @@ from constants import TILE_SIZE
 
 @dataclass
 class Tile:
+    RENDERING_LAYER = 0
+
     row: int
     col: int
     name: str
@@ -43,5 +45,8 @@ class Tile:
         rect = self.get_world_rect()
         if rect.colliderect(self.camera.rect):
             rect = self.get_rel_rect()
+            if self.camera.zoom != 1:
+                rect.topleft = self.camera.world_to_relative(
+                    (self.col * TILE_SIZE, self.row * TILE_SIZE))
             screen.blit(pygame.transform.scale(
                 self.image, (round(TILE_SIZE * self.camera.zoom), round(TILE_SIZE * self.camera.zoom))), rect.topleft)

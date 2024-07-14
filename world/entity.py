@@ -6,7 +6,10 @@ import pygame
 from camera import Camera
 
 
-class WorldEntity(Protocol):
+class Entity(Protocol):
+    RENDERING_LAYER: int
+    rect: pygame.Rect
+
     def update(self) -> None:
         ...
 

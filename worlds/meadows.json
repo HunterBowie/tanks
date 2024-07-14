@@ -5715,7 +5715,7 @@
             "name": "barrier"
         }
     ],
-    "physical_objects": [],
-    "visual_objects": [],
-    "items": []
+    "objects": [],
+    "items": [],
+    "enemies": []
 }

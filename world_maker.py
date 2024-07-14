@@ -1,27 +1,32 @@
+# autopep8: off
+
 import json
 import os
 
 import pygame
 import pygame_util as util
 
-from asset_manager import AssetManager
-from camera import Camera
 from constants import SCREEN_SIZE, TILE_SIZE, MouseButton
-from world import MakerWorld, Tile
 
 pygame.init()
 
-
-assets = AssetManager()
 window = util.Window(SCREEN_SIZE, "Map Maker", max_fps=100)
 
-assets.load_images()
+from assets import assets
+from camera import Camera
+from world import MakerWorld, Tile
+
+# autopep8: on
+
 
 window.set_icon(assets.images.ui["wrench"])
 
 
-world: MakerWorld = MakerWorld.load("meadows", assets)
-camera = Camera((0, 0))
+camera = Camera()
+world: MakerWorld = MakerWorld.load("dunes", camera)
+
+camera.set_barrier_rects([])
+camera.set_pos(world.spawn)
 
 
 def get_mouse_row_col() -> tuple[int, int]:
@@ -57,7 +62,7 @@ def main():
         if mouse_buttons[MouseButton.Pressed.LEFT]:
             if mouse_row >= 0 and mouse_col >= 0:
                 world.add_tile(
-                    Tile.load({"row": mouse_row, "col": mouse_col, "name": tiles[current_tile_index]}, assets))
+                    Tile.load({"row": mouse_row, "col": mouse_col, "name": tiles[current_tile_index]}, camera))
 
         if mouse_buttons[MouseButton.Pressed.RIGHT]:
             tile = world.get_tile(mouse_row, mouse_col)
@@ -105,7 +110,7 @@ def main():
                                 Tile.load({"row": row, "col": col, "name": tiles[current_tile_index]}, assets))
                     filling_area = False
 
-        world.render(screen, camera)
+        world.render(screen)
 
         is_mouse_focused = pygame.mouse.get_focused()
         if is_mouse_focused and mouse_row >= 0 and mouse_col >= 0:

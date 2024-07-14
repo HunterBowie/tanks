@@ -8,8 +8,9 @@ from camera import Camera
 from world.tanks.tank import Tank
 
 
-class Explosion:
+class ExplosionEffect:
     FRAME_DELAY = .1
+    RENDERING_LAYER = 4
 
     def __init__(self, pos: tuple[int, int], camera: Camera) -> None:
         self.camera = camera
@@ -19,17 +20,17 @@ class Explosion:
         self.rect = self.frames[self.frame].get_rect(center=pos)
         self.frame_timer = util.Timer()
         self.frame_timer.start()
-        self.dead = False
+        self.finished = False
 
-    def is_dead(self) -> bool:
-        return self.dead
+    def is_finished(self) -> bool:
+        return self.finished
 
     def update(self):
-        if self.frame_timer.passed(self.FRAME_DELAY) and not self.dead:
+        if self.frame_timer.passed(self.FRAME_DELAY) and not self.finished:
             self.frame += 1
             self.frame_timer.start()
             if self.frame == len(self.frames):
-                self.dead = True
+                self.finished = True
                 self.frame -= 1
 
     def render(self, screen: pygame.Surface) -> None:

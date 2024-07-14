@@ -2,44 +2,52 @@
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 
 import pygame
 import pygame_util as util
 
 from assets import assets
 from camera import Camera
-from constants import TankTrackSize
-from world.tanks.bullet import Bullet
-from world.tanks.turret import Turret
+from constants import DEBUG_MODE, TankTrackSize
+from world.bullet import Bullet
+from world.tanks.turrets.turret import Turret
 
-from .rotation import get_angle, move_rect_with_degrees
+from .rotation import move_rect_with_degrees
 
 
-class Tank:
-    ID = 0
+class Tank(ABC):
+    DEFAULT_SPEED: int
+    MAX_HEALTH: int
+    RENDERING_LAYER = 3
+    _ID = 0
 
-    def __init__(self, pos: tuple[int, int], camera: Camera) -> None:
+    def __init__(self, pos: tuple[int, int], image: pygame.Surface,
+                 turrets: list[Turret], track_size: TankTrackSize, camera: Camera) -> None:
         self.camera = camera
-        self.image = assets.images.tanks["blue_tank_body"]
+        self.turrets = turrets
+
+        self.image = image
+        self.rotated_image = self.image.copy()
         self.rect = self.image.get_rect(center=pos)
-        self.rotated_image = self.image
         self.rotate(90)
-        self.speed = 3
-        self.track_size = TankTrackSize.SMALL
+
+        self.track_size = track_size
         self.track_timer = util.Timer()
         self.track_timer.start()
-        self.id = self.generate_id()
 
-        self.turret = Turret(self.rect.center, self.id, camera)
+        self.speed = self.DEFAULT_SPEED
+        self.health = self.MAX_HEALTH
+        self.id = self._generate_id()
+
+    @classmethod
+    def _generate_id(cls) -> int:
+        cls._ID += 1
+        return cls._ID
 
     @property
     def mask(self) -> pygame.Mask:
         return pygame.mask.from_surface(self.rotated_image)
-
-    @classmethod
-    def generate_id(cls) -> int:
-        cls.ID += 1
-        return cls.ID
 
     def move(self, angle: int, other_tanks: list[Tank]) -> None:
         original_angle = self.angle
@@ -60,20 +68,20 @@ class Tank:
         self.rect = self.rotated_image.get_rect(center=self.rect.center)
 
     def fire(self) -> list[Bullet]:
-        return [self.turret.fire()]
+        return [turret.fire(self.id) for turret in self.turrets]
 
+    @abstractmethod
     def update(self) -> None:
-        x, y = self.rect.center
-        angle = 180-self.turret.angle
-        radians = math.radians(angle)
-        x += 6 * math.cos(radians)
-        y += 6 * math.sin(radians)
-        self.turret.set_pivot((x, y))
-        self.turret.update()
+        for turret in self.turrets:
+            turret.update()
 
     def render(self, screen: pygame.Surface) -> None:
         rect = self.rect.copy()
         rect.topleft = self.camera.world_to_relative(rect.topleft)
-        # screen.blit(self.mask.to_surface(), rect.topleft)
-        screen.blit(self.rotated_image, rect)
-        self.turret.render(screen)
+        if DEBUG_MODE:
+            screen.blit(self.mask.to_surface(), rect.topleft)
+        else:
+            screen.blit(self.rotated_image, rect)
+
+        for turret in self.turrets:
+            turret.render(screen)

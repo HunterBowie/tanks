@@ -10,6 +10,8 @@ from camera import Camera
 
 @dataclass
 class Object:
+    RENDERING_LAYER = 2
+
     x: int
     y: int
     name: str
@@ -18,7 +20,7 @@ class Object:
 
     @staticmethod
     def load(data: dict, camera: Camera) -> Object:
-        return Object(data["x"], data["y"], data["name"], assets.images.tiles[data["name"]], Camera)
+        return Object(data["x"], data["y"], data["name"], assets.images.tiles[data["name"]], camera)
 
     def unload(self) -> dict:
         return {"x": self.x, "y": self.y, "name": self.name}

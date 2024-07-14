@@ -1,6 +1,8 @@
-from world.world_entity import WorldEntity
+from world.entity import Entity
 
 
-class Effect(WorldEntity):
-    def is_dead(self) -> bool:
+class Effect(Entity):
+    rendering_layer: int
+
+    def is_finished(self) -> bool:
         ...

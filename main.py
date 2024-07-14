@@ -6,16 +6,16 @@ import pygame
 import pygame_util as util
 
 from camera import Camera
-from constants import SCREEN_SIZE, TILE_SIZE
+from constants import SCREEN_SIZE, TILE_SIZE, TankColor
 
 pygame.init()
 
 window = util.Window(SCREEN_SIZE, 'Tanks')
 
 from assets import assets
-from world import Tank, World
+from world import BasicTank, Tank, World
 from world.tanks.rotation import get_angle
-from world.tanks.turret import Turret
+from world.tanks.turrets.turret import Turret
 
 # autopep8: on
 
@@ -27,12 +27,12 @@ world = World.load("meadows", camera)
 camera.set_pos(world.spawn)
 camera.set_barrier_rects(world.get_barrier_rects())
 
-tank = Tank(world.spawn, camera)
+tank = BasicTank(world.spawn, TankColor.GREEN, camera)
 world.spawn_tank(tank)
 
 x, y = world.spawn
 x -= 200
-enemy_tank = Tank((x, y), camera)
+enemy_tank = BasicTank((x, y), TankColor.RED, camera)
 world.spawn_tank(enemy_tank)
 
 firing_timer = util.Timer()
