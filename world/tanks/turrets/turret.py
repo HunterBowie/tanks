@@ -1,6 +1,5 @@
-
-
 import math
+from abc import ABC, abstractmethod
 
 import pygame
 import pygame_util as util
@@ -13,14 +12,18 @@ from world.bullet import Bullet
 from ..rotation import move_pos_with_degrees
 
 
-class Turret:
-    DEFAULT_BULLET_SPEED = 4
+class Turret(ABC):
+    DEFAULT_BULLET_SPEED: int
+    DEFAULT_FIRING_DELAY: int
 
-    def __init__(self, pivot_pos: tuple[int, int], camera: Camera) -> None:
+    def __init__(self, pivot_pos: tuple[int, int], image: pygame.Surface, camera: Camera) -> None:
         self.camera = camera
-        self.image = assets.images.tanks["blue_tank_barrel_1"]
+        self.image = image
         self.pivot_pos = pivot_pos
         self.bullet_speed = self.DEFAULT_BULLET_SPEED
+        self.firing_delay = self.DEFAULT_FIRING_DELAY
+        self.firing_timer = util.Timer()
+        self.firing_timer.start()
         self.rotate(90)
 
     def set_pivot(self, pivot_pos: tuple[int, int]) -> None:
@@ -35,8 +38,18 @@ class Turret:
         self.rotated_image = pygame.transform.rotate(
             self.image, self.angle + 90)
 
+    def firing_cooldown_reached(self) -> bool:
+        if self.firing_timer.passed(self.firing_delay):
+            return True
+        return False
+
+    @abstractmethod
+    def _fire(self, tank_id: int) -> Bullet:
+        pass
+
     def fire(self, tank_id: int) -> Bullet:
-        return Bullet(self.launch_pos, self.angle, self.bullet_speed, tank_id, self.camera)
+        self.firing_timer.start()
+        return self._fire(tank_id)
 
     def render(self, screen: pygame.Surface) -> None:
         rect = self.rect.copy()

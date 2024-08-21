@@ -68,7 +68,7 @@ class Tank(ABC):
         self.rect = self.rotated_image.get_rect(center=self.rect.center)
 
     def fire(self) -> list[Bullet]:
-        return [turret.fire(self.id) for turret in self.turrets]
+        return [turret.fire(self.id) for turret in self.turrets if turret.firing_cooldown_reached()]
 
     @abstractmethod
     def update(self) -> None:

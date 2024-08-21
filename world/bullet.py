@@ -3,6 +3,7 @@ import pygame_util as util
 
 from assets import assets
 from camera import Camera
+from constants import BulletSize, TankColor
 
 from .tanks.rotation import move_rect_with_degrees
 
@@ -10,11 +11,11 @@ from .tanks.rotation import move_rect_with_degrees
 class Bullet:
     RENDERING_LAYER = 4
 
-    def __init__(self, pos: tuple[int, int], angle: int, speed: int, tank_id: int, camera: Camera) -> None:
+    def __init__(self, pos: tuple[int, int], color: TankColor, size: BulletSize, angle: int, speed: int, tank_id: int, camera: Camera) -> None:
         self.camera = camera
         self.tank_id = tank_id
         self.speed = speed
-        self.image = assets.images.bullets["blue_bullet_1"]
+        self.image = assets.images.bullets[f"{color.name.lower()}_bullet_{size.name.lower()}"]
         self.rect = self.image.get_rect(center=pos)
         self.rotate(angle)
         self.explosion_timer = util.Timer()

@@ -11,7 +11,7 @@ from camera import Camera
 from constants import DEBUG_MODE, TankColor, TankTrackSize
 from world.bullet import Bullet
 from world.tanks.tank import Tank
-from world.tanks.turrets import Turret
+from world.tanks.turrets import BasicTurret
 
 from .rotation import move_rect_with_degrees
 
@@ -21,7 +21,7 @@ class BasicTank(Tank):
     MAX_HEALTH = 100
 
     def __init__(self, pos: tuple[int, int], color: TankColor, camera: Camera) -> None:
-        self.turret = Turret(pos, camera)
+        self.turret = BasicTurret(pos, color, camera)
         self.color = color
         super().__init__(pos, assets.images.tanks[f"{color.name.lower()}_tank_body"], [
             self.turret], TankTrackSize.SMALL, camera)

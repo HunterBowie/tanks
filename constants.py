@@ -29,6 +29,12 @@ class TankColor(Enum):
     BLACK = auto()
 
 
+class BulletSize(Enum):
+    BASIC = auto()
+    WIDE = auto()
+    NARROW = auto()
+
+
 class MouseButton:
     class Pressed:
         LEFT = 0

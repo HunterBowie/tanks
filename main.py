@@ -27,16 +27,13 @@ world = World.load("meadows", camera)
 camera.set_pos(world.spawn)
 camera.set_barrier_rects(world.get_barrier_rects())
 
-tank = BasicTank(world.spawn, TankColor.GREEN, camera)
+tank = BasicTank(world.spawn, TankColor.BLUE, camera)
 world.spawn_tank(tank)
 
 x, y = world.spawn
 x -= 200
 enemy_tank = BasicTank((x, y), TankColor.RED, camera)
 world.spawn_tank(enemy_tank)
-
-firing_timer = util.Timer()
-firing_timer.start()
 
 running = True
 while running:
@@ -45,9 +42,8 @@ while running:
             running = False
 
     pressed = pygame.mouse.get_pressed()
-    if pressed[0] and firing_timer.passed(.2):
+    if pressed[0]:
         world.tank_fire(tank)
-        firing_timer.start()
 
     keys = pygame.key.get_pressed()
     x_change, y_change = 0, 0
@@ -68,6 +64,4 @@ while running:
             tank.rect.center), pygame.mouse.get_pos()))
     world.update()
     world.render(window.screen)
-    pygame.draw.circle(window.screen, util.Color.RED,
-                       camera.world_to_relative(world.spawn), 5)
     window.update()
