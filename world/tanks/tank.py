@@ -40,10 +40,10 @@ class Tank(ABC):
         self.health = self.MAX_HEALTH
         self.id = self._generate_id()
 
-    @classmethod
-    def _generate_id(cls) -> int:
-        cls._ID += 1
-        return cls._ID
+    @staticmethod
+    def _generate_id() -> int:
+        Tank._ID += 1
+        return Tank._ID
 
     @property
     def mask(self) -> pygame.Mask:

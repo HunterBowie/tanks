@@ -14,6 +14,7 @@ window = util.Window(SCREEN_SIZE, 'Tanks')
 
 from assets import assets
 from world import BasicTank, Tank, World
+from world.tanks import SeekingTank
 from world.tanks.rotation import get_angle
 from world.tanks.turrets.turret import Turret
 
@@ -27,7 +28,7 @@ world = World.load("meadows", camera)
 camera.set_pos(world.spawn)
 camera.set_barrier_rects(world.get_barrier_rects())
 
-tank = BasicTank(world.spawn, TankColor.BLUE, camera)
+tank = SeekingTank(world.spawn, camera)
 world.spawn_tank(tank)
 
 x, y = world.spawn
@@ -57,11 +58,14 @@ while running:
         y_change = 1
     if x_change != 0 or y_change != 0:
         angle = math.degrees(math.atan2(-y_change, x_change))
+        if angle < 0:
+            angle += 360
         world.move_tank(tank, angle)
     camera.move_with_delay_within_barriers(tank.rect.center)
     if pygame.mouse.get_focused():
-        tank.turret.rotate(get_angle(camera.world_to_relative(
-            tank.rect.center), pygame.mouse.get_pos()))
+        for turret in tank.turrets:
+            turret.rotate(get_angle(camera.world_to_relative(
+                tank.rect.center), pygame.mouse.get_pos()))
     world.update()
     world.render(window.screen)
     window.update()
