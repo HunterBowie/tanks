@@ -1,4 +1,4 @@
-from enum import Enum, StrEnum, auto
+from enum import Enum, IntEnum, StrEnum, auto
 from os import path
 
 SCREEN_WIDTH = 1000
@@ -13,6 +13,19 @@ WORLDS_DIR = path.join(CURRENT_DIR, "worlds")
 NUM_RENDERING_LAYERS = 5
 
 DEBUG_MODE = False
+
+
+class TurretType(Enum):
+    BASIC = auto()
+    BARREL = auto()
+    WIDE = auto()
+
+
+class ExplosionSize(float, Enum):
+    REGULAR = 1
+    SMALL = .75
+    LARGE = 1.5
+    MASSIVE = 3
 
 
 class TankTrackSize(StrEnum):
@@ -33,6 +46,7 @@ class BulletSize(Enum):
     BASIC = auto()
     WIDE = auto()
     NARROW = auto()
+    MINI = auto()
 
 
 class MouseButton:

@@ -6,17 +6,15 @@ import pygame
 import pygame_util as util
 
 from camera import Camera
-from constants import SCREEN_SIZE, TILE_SIZE, TankColor
+from constants import SCREEN_SIZE, TankColor, TurretType
 
 pygame.init()
 
 window = util.Window(SCREEN_SIZE, 'Tanks')
 
 from assets import assets
-from world import BasicTank, Tank, World
-from world.tanks import SeekingTank
+from world import BasicTank, BeastTank, BlitzTank, SeekingTank, Tank, World
 from world.tanks.rotation import get_angle
-from world.tanks.turrets.turret import Turret
 
 # autopep8: on
 
@@ -28,13 +26,25 @@ world = World.load("meadows", camera)
 camera.set_pos(world.spawn)
 camera.set_barrier_rects(world.get_barrier_rects())
 
-tank = SeekingTank(world.spawn, camera)
-world.spawn_tank(tank)
+tank1 = BasicTank(world.spawn, TurretType.WIDE, TankColor.BLUE, camera)
+world.spawn_tank(tank1)
 
 x, y = world.spawn
-x -= 200
-enemy_tank = BasicTank((x, y), TankColor.RED, camera)
-world.spawn_tank(enemy_tank)
+x += 100
+tank2 = BasicTank((x, y), TurretType.BARREL, TankColor.RED, camera)
+world.spawn_tank(tank2)
+
+x += 100
+tank3 = SeekingTank((x, y), camera)
+world.spawn_tank(tank3)
+
+x += 125
+tank4 = BlitzTank((x, y), camera)
+world.spawn_tank(tank4)
+
+tanks: list[Tank] = [tank1, tank2, tank3, tank4]
+index = 1
+tank = tank1
 
 running = True
 while running:
@@ -42,8 +52,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                tank = tanks[index]
+                index += 1
+                if index > 3:
+                    index = 0
+
     pressed = pygame.mouse.get_pressed()
-    if pressed[0]:
+    if pressed[0] and tank.firing_cooldown_reached():
         world.tank_fire(tank)
 
     keys = pygame.key.get_pressed()
@@ -68,4 +85,7 @@ while running:
                 tank.rect.center), pygame.mouse.get_pos()))
     world.update()
     world.render(window.screen)
+    # for other_tank in tanks:
+    #     if other_tank != tank:
+    #         other_tank.render_health_bar(window.screen)
     window.update()

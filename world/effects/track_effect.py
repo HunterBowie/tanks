@@ -4,6 +4,7 @@ import pygame_util as util
 
 from assets import assets
 from camera import Camera
+from constants import TankTrackSize
 from world.tanks.tank import Tank
 
 
@@ -14,7 +15,8 @@ class TrackEffect:
     def __init__(self, tank: Tank, camera: Camera) -> None:
         self.camera = camera
         self.image = assets.images.objects[tank.track_size.value]
-        self.image = pygame.transform.scale(self.image, (70, 70))
+        if tank.track_size == TankTrackSize.SMALL:
+            self.image = pygame.transform.scale(self.image, (70, 70))
         self.image = pygame.transform.rotate(self.image, tank.angle + 90)
         self.rect = self.image.get_rect()
         self.rect.center = tank.rect.center

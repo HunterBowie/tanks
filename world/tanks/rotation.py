@@ -22,3 +22,15 @@ def get_angle(start: tuple[int, int], end: tuple[int, int]) -> int:
     """Get the angle between two points from the perspective of the first point."""
     radians = math.atan2(-(end[1]-start[1]), (end[0]-start[0]))
     return math.degrees(radians)
+
+
+def rotate_point_around_origin(point: tuple[int, int], angle: int) -> tuple[int, int]:
+    "Rotate a point in space around another point be a certain amount of degrees."
+    point = point[0], -point[1]
+
+    x = point[0]*math.cos(math.radians(angle)) - \
+        point[1]*math.sin(math.radians(angle))
+    y = point[0]*math.sin(math.radians(angle)) + \
+        point[1]*math.cos(math.radians(angle))
+
+    return x, -y

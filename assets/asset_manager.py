@@ -7,6 +7,7 @@ CURRENT_DIR = os.path.dirname(__file__)
 
 IMAGES_DIR = os.path.join(CURRENT_DIR, "images")
 TILES_DIR = os.path.join(IMAGES_DIR, "tiles")
+TURRETS_DIR = os.path.join(IMAGES_DIR, "turrets")
 OBJECTS_DIR = os.path.join(IMAGES_DIR, "objects")
 UI_DIR = os.path.join(IMAGES_DIR, "ui")
 TANKS_DIR = os.path.join(IMAGES_DIR, "tanks")
@@ -23,6 +24,7 @@ FONTS_DIR = os.path.join(CURRENT_DIR, "fonts")
 class ImageManager:
     def __init__(self) -> None:
         self.tanks: dict[str, pygame.Surface] = {}
+        self.turrets: dict[str, pygame.Surface] = {}
         self.bullets: dict[str, pygame.Surface] = {}
         self.explosions: dict[str, pygame.Surface] = {}
         self.tiles: dict[str, pygame.Surface] = {}
@@ -31,6 +33,7 @@ class ImageManager:
         self._other: dict[str, pygame.Surface] = {}
 
         self._load(TANKS_DIR, self.tanks)
+        self._load(TURRETS_DIR, self.turrets)
         self._load(BULLETS_DIR, self.bullets)
         self._load(EXPLOSIONS_DIR, self.explosions)
         self._load(TILES_DIR, self.tiles)
@@ -57,7 +60,7 @@ class ImageManager:
 
 class SoundManager:
     def __init__(self) -> None:
-        self.effects = {}
+        self.effects: dict[str, pygame.mixer.Sound] = {}
         self.music = {}
         self._load(EFFECTS_DIR, self.effects)
         self._load(MUSIC_DIR, self.music)

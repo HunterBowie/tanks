@@ -5,6 +5,7 @@ import pygame_util as util
 
 from assets import assets
 from camera import Camera
+from constants import ExplosionSize
 from world.tanks.tank import Tank
 
 
@@ -12,9 +13,9 @@ class ExplosionEffect:
     FRAME_DELAY = .1
     RENDERING_LAYER = 4
 
-    def __init__(self, pos: tuple[int, int], camera: Camera) -> None:
+    def __init__(self, pos: tuple[int, int], explosion_size: ExplosionSize, camera: Camera) -> None:
         self.camera = camera
-        self.frames = [assets.images.explosions[name] for name in [
+        self.frames = [pygame.transform.scale_by(assets.images.explosions[name], explosion_size.value) for name in [
             "explosion1", "explosion2", "explosion3", "explosion4", "explosion5"]]
         self.frame = 0
         self.rect = self.frames[self.frame].get_rect(center=pos)

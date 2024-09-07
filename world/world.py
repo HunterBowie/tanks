@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from os import path
 
@@ -9,7 +10,8 @@ import pygame
 
 from assets import assets
 from camera import Camera
-from constants import NUM_RENDERING_LAYERS, TILE_SIZE, WORLDS_DIR, EntityType
+from constants import (NUM_RENDERING_LAYERS, TILE_SIZE, WORLDS_DIR, EntityType,
+                       ExplosionSize)
 from world.effects import Effect, ExplosionEffect, TrackEffect
 from world.entity import Entity
 from world.tanks import Tank
@@ -36,6 +38,7 @@ class World:
 
     def tank_fire(self, tank: Tank) -> None:
         self.entities[EntityType.BULLET].extend(tank.fire())
+        assets.sounds.effects["pop"].play()
 
     def move_tank(self, tank: Tank, angle: int) -> None:
         tank.move(
@@ -46,9 +49,48 @@ class World:
                 TrackEffect(tank, self.camera))
             tank.track_timer.start()
 
-    def create_explosion(self, pos: tuple[int, int]) -> None:
+    def create_explosion(self, pos: tuple[int, int], explosion_size: ExplosionSize) -> None:
         self.entities[EntityType.EFFECT].append(
-            ExplosionEffect(pos, self.camera))
+            ExplosionEffect(pos, explosion_size, self.camera))
+        assets.sounds.effects["explosion"].play()
+
+    def _update_bullet_seeking(self, bullet: Bullet) -> None:
+        if bullet.seeking_target_id == -1:
+            if not bullet.seeking_timer.passed(.100):
+                return
+            tanks: list[Tank] = self.entities[EntityType.TANK].copy()
+            for tank in tanks:
+                if tank.id == bullet.tank_id:
+                    tanks.remove(tank)
+            distances = [math.dist(tank.rect.center, bullet.rect.center)
+                         for tank in tanks]
+            min_dist = min(distances)
+            if min_dist > bullet.seeking_radius:
+                bullet.seeking_timer.start()
+                return
+            tank = tanks[distances.index(min(distances))]
+            bullet.seeking_target_id = tank.id
+
+        for tank in self.entities[EntityType.TANK]:
+            if tank.id == bullet.seeking_target_id:
+                dist = math.dist(bullet.rect.center, tank.rect.center)
+                if dist > bullet.seeking_radius:
+                    bullet.seeking_target_id = -1
+                    bullet.seeking_timer.start()
+                    return
+                x_change = tank.rect.centerx-bullet.rect.centerx
+                y_change = tank.rect.centery-bullet.rect.centery
+                angle = math.degrees(math.atan2(-y_change, x_change))
+                if angle < 0:
+                    angle += 360
+                angle_change = angle-bullet.angle
+                if angle_change > 180:
+                    angle_change -= 360
+                bullet.rotate(bullet.angle + angle_change*bullet.seeking_force)
+                break
+        else:
+            bullet.seeking_target_id = -1
+            bullet.seeking_timer.start()
 
     def update(self) -> None:
         for entities in self.entities.values():
@@ -62,11 +104,15 @@ class World:
             if not bullet.rect.colliderect(self.rect):
                 self.entities[EntityType.BULLET].remove(bullet)
             else:
+                if bullet.seeking_force > 0:
+                    self._update_bullet_seeking(bullet)
                 for tank in self.entities[EntityType.TANK]:
                     if tank.id != bullet.tank_id:
                         if tank.rect.colliderect(bullet.rect):
                             self.entities[EntityType.BULLET].remove(bullet)
-                            self.create_explosion(bullet.rect.center)
+                            self.create_explosion(
+                                bullet.rect.center, bullet.explosion_size)
+                            break
 
     def render(self, screen: pygame.Surface) -> None:
         layers: list[list[Entity]] = [[] for i in range(NUM_RENDERING_LAYERS)]

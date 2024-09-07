@@ -16,6 +16,8 @@ class Turret(ABC):
     DEFAULT_BULLET_SPEED: int
     DEFAULT_FIRING_DELAY: int
 
+    LAUNCH_POS_OFFSET: int = 67
+
     def __init__(self, pivot_pos: tuple[int, int], image: pygame.Surface, camera: Camera) -> None:
         self.camera = camera
         self.image = image
@@ -31,7 +33,8 @@ class Turret(ABC):
 
     def update(self) -> None:
         self.rect = self.rotated_image.get_rect(center=self.pivot_pos)
-        self.launch_pos = move_pos_with_degrees(self.pivot_pos, self.angle, 55)
+        self.launch_pos = move_pos_with_degrees(
+            self.pivot_pos, self.angle, self.LAUNCH_POS_OFFSET)
 
     def rotate(self, angle: int) -> None:
         self.angle = angle
@@ -59,4 +62,5 @@ class Turret(ABC):
         if DEBUG_MODE:
             pos = self.camera.world_to_relative(self.pivot_pos)
             pygame.draw.circle(screen, util.Color.GREEN,
-                               move_pos_with_degrees(pos, self.angle, 55), 4)
+                               move_pos_with_degrees(pos, self.angle, self.LAUNCH_POS_OFFSET), 4)
+            pygame.draw.circle(screen, util.Color.PURPLE, pos, 4)
