@@ -22,11 +22,11 @@ from world import MakerWorld, Tile
 window.set_icon(assets.images.ui["wrench"])
 
 
-camera = Camera()
+camera = Camera(window.screen.get_rect())
 world: MakerWorld = MakerWorld.load("dunes", camera)
 
 camera.set_barrier_rects([])
-camera.set_pos(world.spawn)
+camera.move_center(world.spawn)
 
 
 def get_mouse_row_col() -> tuple[int, int]:
@@ -51,13 +51,13 @@ def main():
         mouse_row, mouse_col = get_mouse_row_col()
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            camera.move(-10, 0)
+            camera.move_relative_to_zoom(-10, 0)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            camera.move(10, 0)
+            camera.move_relative_to_zoom(10, 0)
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            camera.move(0, -10)
+            camera.move_relative_to_zoom(0, -10)
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            camera.move(0, 10)
+            camera.move_relative_to_zoom(0, 10)
 
         if mouse_buttons[MouseButton.Pressed.LEFT]:
             if mouse_row >= 0 and mouse_col >= 0:
@@ -67,7 +67,7 @@ def main():
         if mouse_buttons[MouseButton.Pressed.RIGHT]:
             tile = world.get_tile(mouse_row, mouse_col)
             if tile:
-                world.remove_tile(tile)
+                world.remove_relative_to_zoom_tile(tile)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

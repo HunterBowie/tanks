@@ -20,10 +20,10 @@ from world.tanks.rotation import get_angle
 
 window.set_icon(assets.images['icon'])
 
-camera = Camera()
+camera = Camera(pygame.Rect(0, 0, SCREEN_SIZE[0], SCREEN_SIZE[1]))
 world = World.load("meadows", camera)
 
-camera.set_pos(world.spawn)
+camera.move_center(world.spawn)
 camera.set_barrier_rects(world.get_barrier_rects())
 
 tank1 = BasicTank(world.spawn, TurretType.WIDE, TankColor.BLUE, camera)
