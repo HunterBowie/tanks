@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 pygame = "^2.6.1"
 pygame-util = "^1.0.5"
+pytest = "^8.3.4"
 
 
 [build-system]
